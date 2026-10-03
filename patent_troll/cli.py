@@ -535,7 +535,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run Patent Troll
         uses: {action_ref}

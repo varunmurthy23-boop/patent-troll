@@ -16,7 +16,7 @@ git remote add origin https://github.com/varunmurthy23-boop/patent-troll.git
   - workflow: `release.yml`
   - environment: `pypi`
 - [ ] Confirm the package name `patent-troll` is available on PyPI before the first publish.
-- [ ] Create an initial commit, push to GitHub, and confirm CI passes.
+- [x] Create an initial commit, push to GitHub, and confirm CI passes.
 - [ ] Tag the first release, likely `v0.1.0`, after CI is green.
 
 ## Pre-Release Polish

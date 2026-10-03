@@ -1,53 +1,53 @@
 name: Patent Troll
-description: Validate a software invention idea file and generate a patentability risk report.
+description: "Validate a software invention idea file and generate a patentability risk report."
 
 inputs:
   idea-file:
-    description: Path to a Markdown, JSON, or text idea disclosure file.
+    description: "Path to a Markdown, JSON, or text idea disclosure file."
     required: true
   provider:
-    description: Analysis provider to use: auto, openai, anthropic, or none.
+    description: "Analysis provider to use: auto, openai, anthropic, or none."
     required: false
     default: auto
   format:
-    description: Report format to generate: github, markdown, or json.
+    description: "Report format to generate: github, markdown, or json."
     required: false
     default: github
   output-file:
-    description: Path where the generated report should be written.
+    description: "Path where the generated report should be written."
     required: false
     default: patent-troll-report.md
   strict:
-    description: Fail early when the idea file has validation errors.
+    description: "Fail early when the idea file has validation errors."
     required: false
     default: "false"
   python-version:
-    description: Python version used to run the Patent Troll CLI.
+    description: "Python version used to run the Patent Troll CLI."
     required: false
     default: "3.12"
   install-command:
-    description: Custom install command, or auto to install the extra matching the selected provider.
+    description: "Custom install command, or auto to install the extra matching the selected provider."
     required: false
     default: auto
   append-summary:
-    description: Append non-JSON reports to the GitHub Actions step summary.
+    description: "Append non-JSON reports to the GitHub Actions step summary."
     required: false
     default: "true"
   extra-args:
-    description: Additional arguments passed to patent-troll analyze.
+    description: "Additional arguments passed to patent-troll analyze."
     required: false
     default: ""
 
 outputs:
   report-file:
-    description: Path to the generated report file.
+    description: "Path to the generated report file."
     value: ${{ steps.publish.outputs.report_file }}
 
 runs:
   using: composite
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python-version }}
 

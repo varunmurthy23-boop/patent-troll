@@ -8,7 +8,9 @@ def test_github_action_metadata_wraps_cli() -> None:
     action = (ROOT / "action.yml").read_text(encoding="utf-8")
 
     assert "using: composite" in action
-    assert "actions/setup-python@v5" in action
+    assert "actions/setup-python@v6" in action
+    assert 'description: "Analysis provider to use: auto, openai, anthropic, or none."' in action
+    assert 'description: "Report format to generate: github, markdown, or json."' in action
     assert "patent-troll validate" in action
     assert "patent-troll analyze" in action
     assert "GITHUB_STEP_SUMMARY" in action
