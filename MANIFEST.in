@@ -1,0 +1,10 @@
+include README.md
+include RELEASE.md
+include ACTION_ITEMS.md
+include LICENSE
+include SECURITY.md
+include CONTRIBUTING.md
+include action.yml
+recursive-include examples *.md *.py *.yml
+recursive-include scripts *.py
+recursive-include .github/workflows *.yml

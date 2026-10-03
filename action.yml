@@ -1,0 +1,103 @@
+name: Patent Troll
+description: Validate a software invention idea file and generate a patentability risk report.
+
+inputs:
+  idea-file:
+    description: Path to a Markdown, JSON, or text idea disclosure file.
+    required: true
+  provider:
+    description: Analysis provider to use: auto, openai, anthropic, or none.
+    required: false
+    default: auto
+  format:
+    description: Report format to generate: github, markdown, or json.
+    required: false
+    default: github
+  output-file:
+    description: Path where the generated report should be written.
+    required: false
+    default: patent-troll-report.md
+  strict:
+    description: Fail early when the idea file has validation errors.
+    required: false
+    default: "false"
+  python-version:
+    description: Python version used to run the Patent Troll CLI.
+    required: false
+    default: "3.12"
+  install-command:
+    description: Custom install command, or auto to install the extra matching the selected provider.
+    required: false
+    default: auto
+  append-summary:
+    description: Append non-JSON reports to the GitHub Actions step summary.
+    required: false
+    default: "true"
+  extra-args:
+    description: Additional arguments passed to patent-troll analyze.
+    required: false
+    default: ""
+
+outputs:
+  report-file:
+    description: Path to the generated report file.
+    value: ${{ steps.publish.outputs.report_file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Patent Troll
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        if [ "${{ inputs.install-command }}" = "auto" ]; then
+          case "${{ inputs.provider }}" in
+            openai) extra="[openai]" ;;
+            anthropic) extra="[anthropic]" ;;
+            auto) extra="[llm]" ;;
+            none) extra="" ;;
+            *) echo "Unsupported provider: ${{ inputs.provider }}" >&2; exit 2 ;;
+          esac
+          python -m pip install "${{ github.action_path }}${extra}"
+        else
+          ${{ inputs.install-command }}
+        fi
+
+    - name: Validate idea file
+      shell: bash
+      run: |
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          patent-troll validate "${{ inputs.idea-file }}" --strict
+        else
+          patent-troll validate "${{ inputs.idea-file }}"
+        fi
+
+    - name: Analyze idea file
+      shell: bash
+      run: |
+        strict_arg=""
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          strict_arg="--strict"
+        fi
+
+        patent-troll analyze "${{ inputs.idea-file }}" \
+          --provider "${{ inputs.provider }}" \
+          --format "${{ inputs.format }}" \
+          --output "${{ inputs.output-file }}" \
+          $strict_arg \
+          ${{ inputs.extra-args }}
+
+    - name: Append report to job summary
+      if: ${{ inputs.append-summary == 'true' && inputs.format != 'json' }}
+      shell: bash
+      run: cat "${{ inputs.output-file }}" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Publish outputs
+      id: publish
+      shell: bash
+      run: echo "report_file=${{ inputs.output-file }}" >> "$GITHUB_OUTPUT"

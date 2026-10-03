@@ -1,0 +1,35 @@
+name: Patentability Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+  workflow_dispatch:
+
+jobs:
+  patentability:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'patent-scan')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run Patent Troll
+        uses: varunmurthy23-boop/patent-troll@v0
+        with:
+          idea-file: examples/idea.md
+          provider: auto
+          strict: true
+          output-file: patent-troll-report.md
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          USPTO_ODP_API_KEY: ${{ secrets.USPTO_ODP_API_KEY }}
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patent-troll-report
+          path: patent-troll-report.md
